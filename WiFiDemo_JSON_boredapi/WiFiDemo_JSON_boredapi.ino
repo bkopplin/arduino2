@@ -3,7 +3,7 @@
 
 const char* ssid = "bjarne_pc";
 const char* password = "passwort";
-const char* host = "arduinojson.org";
+const char* host = "www.boredapi.com";
 
 void setup() {
   Serial.begin(115200);
@@ -38,8 +38,8 @@ void setup() {
     return;
   }
   // Send HTTP request
-  client.println(F("GET /example.json HTTP/1.0"));
-  client.println(F("Host: arduinojson.org"));
+  client.println(F("GET /api/activity HTTP/1.0"));
+  client.println(F("Host: www.boredapi.com"));
   client.println(F("Connection: close"));
   if (client.println() == 0) {
     Serial.println(F("Failed to send request"));
@@ -76,14 +76,11 @@ void setup() {
 
   // Extract values
   Serial.println(F("Response:"));
-  Serial.print("Sensor Type: ");
-  Serial.println(root["sensor"].as<char*>());
-  Serial.print("Time: ");
-  Serial.println(root["time"].as<char*>());
-  Serial.print("Lat: ");
-  Serial.println(root["data"][0].as<char*>());
-  Serial.print("Lon: ");
-  Serial.println(root["data"][1].as<char*>());
+  Serial.print("activity: ");
+  Serial.println(root["activity"].as<char*>());
+  Serial.print("type: ");
+  Serial.println(root["type"].as<char*>());
+
 
   // Disconnect
   client.stop();
