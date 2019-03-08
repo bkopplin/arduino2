@@ -3,29 +3,33 @@
 #include "Adafruit_Sensor.h"
 #include "Adafruit_AM2320.h"
 
+// wifi setup
 const char* ssid = "bjarne_pc";
 const char* password = "passwort";
-//const char* host = "www.openweathermap.org/";
-//const char* url = "/api/location/18637/";
 const char* host = "api.openweathermap.org";
 const char* url =  "/data/2.5/weather?q=Dundee,uk&appid=79314a41d8fb700c1e1b6aecc40f0cb0";
 
-// LED stuff
-int greenLED = 13;
-int redLED = 12;
-int blueLED = 14;
+// variables to store weather data
+String weatherMain = "";
+String weatherDescription = "";
+double windSpeed = 0;
+double temp;
+double humidity;
 
-// sensor
-Adafruit_AM2320 am2320 = Adafruit_AM2320();
+// LED pins
+int greenLED = 14;
+int redLED = 12;
+int blueLED = 13;
+
 void setup() {
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(blueLED, OUTPUT);
+  
   Serial.begin(115200);
   delay(100);
-  am2320.begin();
 
-  // We start by connecting to a WiFi network
+  // connecting to a WiFi network
   Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
@@ -39,10 +43,7 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
   delay(5000);
-
-  ///CAN BE LOOPED
 
   Serial.print("connecting to ");
   Serial.println(host);
@@ -89,16 +90,26 @@ void setup() {
     Serial.println(F("Parsing failed!"));
     return;
   }
-
-  //  JsonObject& weather = root["consolidated_weather"];
-  //  if (!weather.success()) {
-  //    Serial.println(F("Parsing failed!"));
-  //    return;
-  //  }
-  // Extract values
+  // get weather data from JSON object
   Serial.println(F("Response:"));
+  
+  weatherMain = root["weather"][0]["main"].as<char*>();
+  weatherDescription = root["weather"][0]["description"].as<char*>();
+  windSpeed = root["wind"]["speed"].as<double>();
+  temp = root["main"]["temp"].as<double>();
+ humidity = root["main"]["humidity"].as<double>();;
   Serial.print("main: ");
-  Serial.println(root["weather"][0]["main"].as<char*>());
+  Serial.println(weatherMain);
+    Serial.print("weather description: ");
+  Serial.println(weatherDescription);
+    Serial.print("wind speed: ");
+  Serial.println(windSpeed);
+  Serial.print("wind speed: ");
+  Serial.println(windSpeed);
+    Serial.print("temp: ");
+  Serial.println(temp);
+    Serial.print("humidity: ");
+  Serial.println(humidity);
 
 
 
@@ -109,9 +120,7 @@ void setup() {
 
 void loop() {
  testLED();
-// Serial.print("Temp: "); Serial.println(am2320.readTemperature());
-//  Serial.print("Hum: "); Serial.println(am2320.readHumidity());
-//  Serial.println("");
+
 }
 
 void testLED() {
@@ -134,9 +143,9 @@ void testLED() {
   Serial.println("AQUA");
   delay(1000);
 }
-//
-//// receive values for RGB from main loop function
-//// for each value received, output this to the appropriate pin
+
+//receive values for RGB from main loop function
+//for each value received, output this to the appropriate pin
 void setColour(int r, int g, int b)
 {
   analogWrite(redLED, r);
