@@ -21,11 +21,17 @@ int greenLED = 14;
 int redLED = 12;
 int blueLED = 13;
 
+int green;
+int red;
+int blue;
+
+String behaviourLED;
+
 void setup() {
   pinMode(greenLED, OUTPUT);
   pinMode(redLED, OUTPUT);
   pinMode(blueLED, OUTPUT);
-  
+
   Serial.begin(115200);
   delay(100);
 
@@ -92,23 +98,22 @@ void setup() {
   }
   // get weather data from JSON object
   Serial.println(F("Response:"));
-  
+
   weatherMain = root["weather"][0]["main"].as<char*>();
   weatherDescription = root["weather"][0]["description"].as<char*>();
   windSpeed = root["wind"]["speed"].as<double>();
   temp = root["main"]["temp"].as<double>();
- humidity = root["main"]["humidity"].as<double>();;
+  temp = temp - 273.15;
+  humidity = root["main"]["humidity"].as<double>();;
   Serial.print("main: ");
   Serial.println(weatherMain);
-    Serial.print("weather description: ");
+  Serial.print("weather description: ");
   Serial.println(weatherDescription);
-    Serial.print("wind speed: ");
-  Serial.println(windSpeed);
   Serial.print("wind speed: ");
   Serial.println(windSpeed);
-    Serial.print("temp: ");
+  Serial.print("temp: ");
   Serial.println(temp);
-    Serial.print("humidity: ");
+  Serial.print("humidity: ");
   Serial.println(humidity);
 
 
@@ -116,15 +121,82 @@ void setup() {
   // Disconnect
   client.stop();
 
+  // determine the behaviour of the rgb LED 
+  determineBehaviour();
+  
+
 }
 
 void loop() {
- testLED();
+  displayWeather();
+}
 
+/**
+   determines the behaviour of the LED depending on the weather description from the API
+   reference: https://openweathermap.org/weather-conditions
+*/
+String determineBehaviour() {
+  Serial.print("LED behaviour: ");
+  if (weatherDescription == "moderate rain" || weatherDescription == "light rain" || weatherDescription == "light intensity shower rain" || weatherDescription == "shower rain") {
+    Serial.println("light rain");
+    behaviourLED = "light_rain";
+  } else if (weatherMain == "Rain"  ) {
+    Serial.println("heavy rain");
+    behaviourLED = "heavy_rain";
+  } else if (weatherDescription == "clear sky" || weatherDescription == "few clouds") {
+    Serial.println("clear");
+    behaviourLED = "clear";
+  } else if (weatherMain == "Clouds") {
+    Serial.println("clouds");
+    behaviourLED = "clouds";
+  } else if (weatherMain == "Thunderstorm") {
+    Serial.println("thunderstorm");
+    behaviourLED = "thunderstorm";
+  } 
+}
+
+
+/**
+   updates the state of the led depending on the weather
+*/
+void displayWeather() {
+  if (behaviourLED == "light_rain") {
+    Serial.print("start light rain behaviour");
+    /*
+       light rain
+    */
+    for (int i = 50; i < 100; ++i) {
+      Serial.println(i);
+      setColour(0, 0, i);
+      delay(20);
+    }
+    delay(700);
+    for (int i = 100; i > 50; --i) {
+      Serial.println(i);
+      setColour(0, 0, i);
+      delay(20);
+    }
+    delay(1000);
+  } else if (behaviourLED == "heavy_rain") {
+    /*
+       heavy rain
+    */
+    for (int i = 10; i < 100; ++i) {
+      Serial.println(i);
+      setColour(0, 0, i);
+      delay(10);
+    }
+    delay(1000);
+    for (int i = 10; i > 50; --i) {
+      Serial.println(i);
+      setColour(0, 0, i);
+      delay(10);
+    }
+  }
 }
 
 void testLED() {
-   setColour(255, 0, 0);  // red
+  setColour(255, 0, 0);  // red
   Serial.println("RED");
   delay(1000);
   setColour(0, 255, 0);  // green
@@ -133,14 +205,17 @@ void testLED() {
   setColour(0, 0, 255);  // blue
   Serial.println("BLUE");
   delay(1000);
-  setColour(255, 255, 0);  // yellow
-  Serial.println("YELLOW");
-  delay(1000);  
-  setColour(80, 0, 80);  // purple
-  Serial.println("PURPLE");
+  setColour(0, 255, 255);  // blue
+  Serial.println("BLUE");
   delay(1000);
-  setColour(0, 255, 255);  // aqua
-  Serial.println("AQUA");
+  setColour(0, 100, 100);  // blue
+  Serial.println("BLUE");
+  delay(1000);
+  setColour(255, 0, 255);  // blue
+  Serial.println("BLUE");
+  delay(1000);
+  setColour(255, 255, 0);  // blue
+  Serial.println("BLUE");
   delay(1000);
 }
 
@@ -150,5 +225,5 @@ void setColour(int r, int g, int b)
 {
   analogWrite(redLED, r);
   analogWrite(greenLED, g);
-  analogWrite(blueLED, b);  
+  analogWrite(blueLED, b);
 }
