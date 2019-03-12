@@ -21,9 +21,9 @@ int greenLED = 14;
 int redLED = 12;
 int blueLED = 13;
 
-int green;
-int red;
-int blue;
+int greenVal = 0;
+int redVal = 0;
+int blueVal = 0;
 
 String behaviourLED;
 
@@ -121,14 +121,51 @@ void setup() {
   // Disconnect
   client.stop();
 
-  // determine the behaviour of the rgb LED 
+  // determine the behaviour of the rgb LED
   determineBehaviour();
-  
+  behaviourLED = "heavy_rain";
+  setColour(redVal, greenVal, blueVal);
 
 }
 
 void loop() {
   displayWeather();
+}
+
+/**
+   updates the state of the led depending on the weather
+*/
+void displayWeather() {
+  if (behaviourLED == "light_rain") {
+    /*
+       light rain
+    */
+    for (int i = 10; i < 150; ++i) {
+      changeBrightness(i);
+      delay(20);
+    }
+    delay(700);
+    for (int i = 150; i > 10; --i) {
+      changeBrightness(i);
+      delay(20);
+    }
+    delay(1000);
+  } else if (behaviourLED == "heavy_rain") {
+    Serial.println("yeah it works");
+    /*
+       heavy rain
+    */
+    for (int i = 1; i < 150; ++i) {
+      changeBrightness(i);
+      delay(10);
+    }
+    delay(500);
+    for (int i = 150; i > 1; --i) {
+      changeBrightness(i);
+      delay(10);
+    }
+    delay(700);
+  }
 }
 
 /**
@@ -140,6 +177,8 @@ String determineBehaviour() {
   if (weatherDescription == "moderate rain" || weatherDescription == "light rain" || weatherDescription == "light intensity shower rain" || weatherDescription == "shower rain") {
     Serial.println("light rain");
     behaviourLED = "light_rain";
+    greenVal = 255;
+    blueVal = 255;
   } else if (weatherMain == "Rain"  ) {
     Serial.println("heavy rain");
     behaviourLED = "heavy_rain";
@@ -152,48 +191,11 @@ String determineBehaviour() {
   } else if (weatherMain == "Thunderstorm") {
     Serial.println("thunderstorm");
     behaviourLED = "thunderstorm";
-  } 
-}
-
-
-/**
-   updates the state of the led depending on the weather
-*/
-void displayWeather() {
-  if (behaviourLED == "light_rain") {
-    Serial.print("start light rain behaviour");
-    /*
-       light rain
-    */
-    for (int i = 50; i < 100; ++i) {
-      Serial.println(i);
-      setColour(0, 0, i);
-      delay(20);
-    }
-    delay(700);
-    for (int i = 100; i > 50; --i) {
-      Serial.println(i);
-      setColour(0, 0, i);
-      delay(20);
-    }
-    delay(1000);
-  } else if (behaviourLED == "heavy_rain") {
-    /*
-       heavy rain
-    */
-    for (int i = 10; i < 100; ++i) {
-      Serial.println(i);
-      setColour(0, 0, i);
-      delay(10);
-    }
-    delay(1000);
-    for (int i = 10; i > 50; --i) {
-      Serial.println(i);
-      setColour(0, 0, i);
-      delay(10);
-    }
   }
 }
+
+
+
 
 void testLED() {
   setColour(255, 0, 0);  // red
@@ -226,4 +228,9 @@ void setColour(int r, int g, int b)
   analogWrite(redLED, r);
   analogWrite(greenLED, g);
   analogWrite(blueLED, b);
+}
+
+void changeBrightness(int brightness) {
+  brightness = 255 - brightness;
+  setColour(redVal - brightness, greenVal - brightness, blueVal - brightness);
 }
