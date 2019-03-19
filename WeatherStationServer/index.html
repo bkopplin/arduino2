@@ -16,7 +16,8 @@
 
         :root {
         --main-color: #52928b;
-        --secondary-color: #004d47;
+        /* --secondary-color: #004d47; */
+        --secondary-color: #b9c4c7;
     }
     /* the animation if modified from https://www.w3schools.com/howto/howto_css_loader.asp
     */
@@ -46,7 +47,9 @@
     z-index: 200;
     
 }
-
+.secondary-bg-color {
+    background-color: var(--secondary-color);
+}
 .container {
     max-width: 670px;
 }
@@ -58,15 +61,25 @@
 }
 #btnSubmit:hover, #btnChangeBehaviour:hover, #powerToggle:hover {
     cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 1s;
 }
-.color-white {
+#btnSubmit, #btnChangeBehaviour, #powerToggle {
+    transition: opacity 1s;
+}
+#btnChangeBehaviour .input-group-text:hover {
+    cursor: pointer;
+}
+
+#newLocation {
+    text-align: left;
+}
+.input-group-append .input-group-text {
+    background-color: var(--main-color);
     color: white;
 }
-#newLocation {
-    text-align: center
-}
-.input-group-text {
-    background-color: var(--main-color);
+.input-group-prepend .input-group-text{
+    background-color: var(--secondary-color);
     color: white;
 }
 .navbar {
@@ -75,6 +88,12 @@
 }
 .navbar a {
     color: white;
+}
+.power-on {
+    color: #ffffff;
+}
+.power-off {
+    color: black;
 }
 </style>
 </head>
@@ -91,7 +110,7 @@
             <div class='navbar' id='navbarNav'>
                 <ul class='navbar-nav'>
                     <li class='nav-item '>
-                       <span class='nav-link ' id='powerToggle'><i class='fa fa-power-off '></i></span> 
+                       <span class='nav-link power-on' id='powerToggle'><i class='fa fa-power-off '></i></span> 
                     </li>
 
                 </ul>
@@ -105,11 +124,12 @@
 
                 </div>
 
-                <div class='input-group mb-3 mt-2'>
+                <h4>change location</h4>
+                <div class='input-group mb-3 mt-2  input-group-lg'>
                     <div class='input-group-prepend'>
                         <span class='input-group-text' id='basic-addon1'><i class='fa fa-map-marker-alt '></i></span>
                     </div>
-                    <input type='text' class='form-control form-control-lg' placeholder='type in your location' id='newLocation'>
+                    <input type='text' class='form-control' placeholder='type in your location' id='newLocation'>
                     <div class='input-group-append' id='btnSubmit'>
                         <span class='input-group-text'><i class='fa fa-search '></i></span>
                     </div>
@@ -124,9 +144,12 @@
                 <hr>
 
 
-                <h3>change behaviour</h3>
-                <div class='input-group'>
-                    <select class='custom-select' id='selectBehaviour'>
+                <h4>change behaviour</h4>
+                <div class='input-group input-group-lg mb-3'>
+                        <div class='input-group-prepend'>
+                                <span class='input-group-text' id='basic-addon1'><i class='fa fa-lightbulb '></i></span>
+                            </div>
+                    <select class='custom-select form-control' id='selectBehaviour'>
 
                         <option value='clear sky'>clear sky</option>
                         <option value='rain'>rain</option>
@@ -235,12 +258,14 @@
             var weatherData = JSON.parse(jsonWeatherdata);
             if (weatherData['cod'] == '404') {
                 displayAlert(weatherData['message'], 'danger');
+                
             } else {
-                displayAlert('weather updated', 'success');
+                setPowerButton(weatherData['state']);   
                 newLocation.value = weatherData['location'];
                 ptemperature.innerHTML = weatherData['temperature'];
                 pdescription.innerHTML = weatherData['weather'];
                 icon.src = 'http://openweathermap.org/img/w/' + weatherData['icon'] + '.png';
+                displayAlert('weather updated', 'success');
             }
 
         }
@@ -286,7 +311,18 @@
                 if (xhttp.readyState == 4 && xhttp.status == 200) {
                     console.log(xhttp.responseText);
                     var response = JSON.parse(xhttp.responseText);
-                    if (response['state'] == 'on') {
+                    setPowerButton(response['state']);
+                    toggleAnimation();
+
+                }
+            };
+            toggleAnimation();
+            xhttp.open('POST', '/togglepower');
+            xhttp.send();
+        }
+
+        function setPowerButton(state) {
+            if (state == 'on') {
                         powerToggle.classList.add('power-on');
                         powerToggle.classList.remove('power-off');
                         displayAlert('power turned on');
@@ -295,13 +331,6 @@
                         powerToggle.classList.add('power-off');
                         displayAlert('power turned off');
                     }
-                    toggleAnimation();
-
-                }
-            };
-            toggleAnimation();
-            xhttp.open('POST', '/togglepower');
-            xhttp.send();
         }
 
         // updateWeatherInformation();

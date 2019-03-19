@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css' integrity='sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO' crossorigin='anonymous'>
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js' integrity='sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy' crossorigin='anonymous'></script>
+<style>
+    #newLocation, #btnCancel, #btnSubmit{
+        /* display:none; */
+    }
+</style>
+</head>
+<body>
+    <div class='container'>
+        <div class='row'>
+            <div class='jumbotron col-12'>
+                <h1 id='location'>Dundee</h1>
+                <img id='icon' src='http://openweathermap.org/img/w/10d.png' alt='image weather'>
+                <p id='temperature'>19C</p>
+                <p id='description'>light rain</p>
+                <p id='behaviour'>behaviour</p>
+                <button id='btnChange'>change location</button>
+                <input type='text' name='newLocation' id='newLocation'>
+                <button id='btnCancel'>cancel</button>
+                <button id='btnSubmit'>submit change</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var btnChange, newLocation, btnCancel, btnSubmit;
+        var host = '192.168.137.143';
+
+        btnChange = document.getElementById('btnChange');
+        newLocation = document.getElementById('newLocation');
+        btnCancel = document.getElementById('btnCancel');
+        btnSubmit = document.getElementById('btnSubmit');
+
+        btnChange.addEventListener('click', function() {
+            btnChange.style.display = 'none';
+            newLocation.style.display = 'inline-block';
+            btnCancel.style.display = 'inline-block';
+            btnSubmit.style.display = 'inline-block';
+        });
+        btnCancel.addEventListener('click', function() {
+            newLocation.value = '';
+            btnChange.style.display = 'inline-block';
+            newLocation.style.display = 'none';
+            btnCancel.style.display = 'none';
+            btnSubmit.style.display = 'none';
+        });
+        btnSubmit.addEventListener('click', function() {
+            setLocation();
+        });
+        function setLocation() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if(xhttp.readyState == 4 && xhttp.status == 200) {
+                    console.log('set location POST request OK');
+                }
+            };
+            xhttp.open('POST', '/changelocation');
+            xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhttp.send('location=' + newLocation.value);
+        }
+    </script>
+</body>
+</html>
